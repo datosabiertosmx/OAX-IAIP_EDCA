@@ -2,7 +2,7 @@
   "development": {
     "username": "prueba_captura",
     "password": "p4ssw0rd",
-    "database": "edca_generica",
+    "database": "edca",
     "host": "localhost",
     "dialect": "postgres",
     "operatorsAliases": 0

@@ -139,8 +139,8 @@ and (max-device-width: 736px) {
 		<div class="container-fluid topBar">
             <div class="row topBarTop topBarTopS">
                 <div class="col-xs-4 navbar-header logoINAItop">
-                    <a  title="Ir a la página de inicio del INAI" target="_blank" href="//inicio.inai.org.mx/">
-                        <img src="/images/INAI-26.png" height=46px alt="INAI" /> 
+                    <a  title="Ir a la página de inicio del IAIP" target="_blank" href="//iaipoaxaca.org.mx/site/">
+                        <img src="/images/iaipoax.png" height=46px alt="IAIPOaxaca" /> 
                     </a> 
                 </div>   
                 <div class="col-xs-4 text-center logoCAtop" onclick="dashboard()">			       
@@ -188,32 +188,6 @@ and (max-device-width: 736px) {
         }
     })
     
-    function changePubli(){
-        document.getElementById("publiIc").setAttribute("src","/images/PUBLICIDAD_ICONO_HOVER.png");
-        document.getElementById("diagButtonP").style.backgroundColor = "#0277bd";
-    }
-    function changePubliBack(){
-        document.getElementById("publiIc").setAttribute("src","/images/PUBLICIDAD_ICONO.png");
-        document.getElementById("diagButtonP").style.backgroundColor = "#4d4d4d";
-    }
-
-    function changeComi(){
-        document.getElementById("comiIc").setAttribute("src","/images/COMISIONES_ICONO_HOVER.png");
-        document.getElementById("diagButtonC").style.backgroundColor = "#512da8";
-    }
-    function changeComiBack(){
-        document.getElementById("comiIc").setAttribute("src","/images/COMISIONES_ICONO.png");
-        document.getElementById("diagButtonC").style.backgroundColor = "#4d4d4d";
-    }
-
-    function changePoli(){
-        document.getElementById("poliIc").setAttribute("src","/images/POLITICAS_ICONO_HOVER.png");
-        document.getElementById("diagButtonPO").style.backgroundColor = "#ed6d05";
-    }
-    function changePoliBack(){
-        document.getElementById("poliIc").setAttribute("src","/images/POLITICAS_ICONO.png");
-        document.getElementById("diagButtonPO").style.backgroundColor = "#4d4d4d";
-    }
 	function dashboard(){        
         document.getElementById("conLog").port="4000";
     }
