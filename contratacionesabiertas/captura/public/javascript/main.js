@@ -610,6 +610,11 @@ $('#genericModal').on('show.bs.modal', function (event) {
                     modal.find('.modal-title').text("Editar");
                     modal.find("#modal_content").load('/1.1/edit_party.html', { parties_id: id},function(){
                         $('#update_party_form').submit(function (e) {
+
+                            $("#region_text").val($('select[name="address_region"] option:selected').text());
+                            $("#locality_text").val($('select[name="address_locality"] option:selected').text());
+                            $("#locationname_text").val($('select[name="address_locationname"] option:selected').text());
+
                             $.post('/1.1/party', $(this).serialize()).done(function (data) {
                                 alert( data.description );
                                 $('[name="numberoftenderers"]').val(data.total);
@@ -825,13 +830,6 @@ $('#genericModal').on('show.bs.modal', function (event) {
                         
                         modal.find('#update_location_project_form').submit(function (event) {
                             event.preventDefault();
-        
-                            modal.find('#items').children().each(function (i) {
-                                $(this).find('input, textarea, select').each(function () {
-                                    $(this).attr('name', $(this).attr('name').replace(/\[[0-9]+\]/g, '[' + i + ']'));
-                                });
-                            });
-        
                             $.ajax({
                                 url: '/1.1/update_location_project',
                                 type: 'post',
@@ -927,7 +925,6 @@ $('#genericModal').on('show.bs.modal', function (event) {
                         modal.find('[name="relatedProject_title"]').autocomplete({
                             minLength: 0,
                             source: function(request, response) {
-                                modal.find('[name="relatedProject_scheme"]').val('');
                                 modal.find('[name="relatedProject_identifier"]').val('');
                                 modal.find('[name="relatedProject_uri"]').val('');                                
                                 $.post('/search-projects', { search: request.term }).done(function(data) {
@@ -943,8 +940,8 @@ $('#genericModal').on('show.bs.modal', function (event) {
                                 }
                             },
                             select: function(event, ui) {
-                                modal.find('[name="relatedProject_scheme"]').val(ui.item.projects[0].oc4ids);
-                                modal.find('[name="relatedProject_identifier"]').val(ui.item.projects[0].identifier);
+                                modal.find('[name="relatedProject_identifier"]').val(ui.item.projects[0].title);
+                                modal.find('[name="relatedProject_title"]').val(ui.item.projects[0].oc4idsIdentifier);
                                 modal.find('[name="relatedProject_uri"]').val(ui.item.uri);
                                 return false;
                             }
@@ -982,19 +979,90 @@ $('#genericModal').on('show.bs.modal', function (event) {
         case "add_party":
         	modal.find('.modal-title').text('Actor');
             modal.find('#modal_content').load('/1.1/add_party.html', { contractingprocess_id : button.data("contractingprocess_id")}, function(){
+                $.ajax({
+                    type: 'GET',
+                    url: "https://gaia.inegi.org.mx/wscatgeo/mgee/",
+                    cache: false,
+                    async: false,
+                    dataType: "json",
+                    success: function (data) {
+                        for (var i = 0; i < data.datos.length; i++) {
+                            $("#address_region").append(`<option value="${data.datos[i].cve_agee}"> ${data.datos[i].nom_agee} </option>`); 
+                        } 
+                    }, error: function (objeto, tipo, causa) {
+                        return error;
+                    }
+                });
+                $('#address_region').change(function() {
+                    $("#address_regionkey").val($('#address_region').val());
+                });
+                $('#address_region').change(function() {
+                    $('#address_locality').prop('disabled', false);
+                    $('#address_locality').empty();                   
+                    $('#address_locationname').empty();
+                    $('#address_locationname').prop('disabled', true);                   
+                    $('#address_alcaldiakey').val("");                   
+                    $('#address_localitykey').val("");                   
+                    $.ajax({
+                        type: 'GET',
+                        url: `https://gaia.inegi.org.mx/wscatgeo/mgem/${$(this).val()}/`,
+                        cache: false,
+                        async: false,
+                        dataType: "json",
+                        success: function (data) {
+                            for (var i = 0; i < data.datos.length; i++) {
+                                $("#address_locality").append(`<option value="${data.datos[i].cve_agem}"> ${data.datos[i].nom_agem} </option>`); 
+                            } 
+                        }, error: function (objeto, tipo, causa) {
+                            return error;
+                        }
+                    }); 
+                });
+                $('#address_locality').change(function() {
+                    $("#address_alcaldiakey").val($('#address_locality').val());
+                });
+                $('#address_locality').change(function() {
+                    $('#address_locationname').prop('disabled', false);
+                    $('#address_locationname').empty();                 
+                    $('#address_localitykey').val("");
+                    $.ajax({
+                        type: 'GET',
+                        url: `https://gaia.inegi.org.mx/wscatgeo/asentamientos/${$("#address_region").val()}${$(this).val()}0001/`,
+                        cache: false,
+                        async: false,
+                        dataType: "json",
+                        success: function (data) {
+                            for (var i = 0; i < data.datos.length; i++) {
+                                $("#address_locationname").append(`<option value="${data.datos[i].cve_asen}"> ${data.datos[i].nom_asen} </option>`); 
+                            } 
+                        }, error: function (objeto, tipo, causa) {
+                            return error;
+                        }
+                    }); 
+                });
+                $('#address_locationname').change(function() {
+                    $("#address_localitykey").val($('#address_locationname').val());
+                });
+                
+
                 $('#add_party_form').submit(function (e) {
-                   $.ajax({
-                       url: "/1.1/party/",
-                       method: "PUT",
-                       data: $(this).serialize(),
-                       success: function (data) {
-                           alert(data.description);
-                           $('[name="numberoftenderers"]').val(data.data.total);
-                           if (data.status === 'Ok'){ modal.modal('hide');}
-                           location.reload();
-                       }
-                   });
-                    e.preventDefault();
+                    
+                    $("#region_text").val($('select[name="address_region"] option:selected').text());
+                    $("#locality_text").val($('select[name="address_locality"] option:selected').text());
+                    $("#locationname_text").val($('select[name="address_locationname"] option:selected').text());
+
+                    $.ajax({
+                        url: "/1.1/party/",
+                        method: "PUT",
+                        data: $(this).serialize(),
+                        success: function (data) {
+                            alert(data.description);
+                            $('[name="numberoftenderers"]').val(data.data.total);
+                            if (data.status === 'Ok'){ modal.modal('hide');}
+                            location.reload();
+                        }
+                    });
+                        e.preventDefault();
                 });
 
                 modal.find('[name$="language"]').multiselect({
@@ -1580,14 +1648,14 @@ $('#genericModal').on('show.bs.modal', function (event) {
                     locale: 'es',
                     format: 'YYYY-MM-DD'
                 }).on("dp.change", function (e) {
-                    modal.find('#newguarantee_date2').data("DateTimePicker").minDate(e.date);
+                    // modal.find('#newguarantee_date2').data("DateTimePicker").minDate(e.date);
                 });
 
                 modal.find('#newguarantee_date2').datetimepicker({
                     locale: 'es',
                     format: 'YYYY-MM-DD'
                 }).on("dp.change", function (e) {
-                    modal.find('#newguarantee_date1').data("DateTimePicker").maxDate(e.date);
+                    // modal.find('#newguarantee_date1').data("DateTimePicker").maxDate(e.date);
                 });
 
                 modal.find('#newguarantee_form').submit(function (event) {
@@ -1823,37 +1891,6 @@ $('#genericModal').on('show.bs.modal', function (event) {
             modal.find('#modal_content').load('/add-location-project', {
                 project_id: button.data('project_id')
             }, function () {
-                // Agrega nuevos items a las coordenadas
-                modal.off('click', '[data-action="add_item"]');
-                modal.on('click', '[data-action="add_item"]', function (e) {
-                    e.preventDefault();
-                    var template = modal.find('#itemTemplate').html();
-
-                    var index = new Date().getTime();
-                    template = template.replace(/\[0\]/g, '[' + index + ']');
-
-                    var content = $(template).appendTo(modal.find('#items'));
-                    initItem(content);
-                    updateSelectedItem();
-                });
-
-                // Elimina items de las coordenadas
-                modal.on('click', '[data-dismiss="item"]', function (e) {
-                    e.preventDefault();
-
-                    $(this).parent().remove();
-
-                    if (modal.find('#items').children().length == 0) {
-                        var template = modal.find('#itemTemplate').html();
-
-                        var index = new Date().getTime();
-                        template = template.replace(/\[0\]/g, '[' + index + ']');
-
-                        var content = $(template).appendTo(modal.find('#items'));
-                    }
-                    updateSelectedItem();
-                });
-                
                 modal.find('#add_location_project_form').submit(function (event) {
                     event.preventDefault();
 
@@ -1917,7 +1954,6 @@ $('#genericModal').on('show.bs.modal', function (event) {
                 modal.find('[name="relatedProject_title"]').autocomplete({
                     minLength: 0,
                     source: function(request, response) {
-                        modal.find('[name="relatedProject_scheme"]').val('');
                         modal.find('[name="relatedProject_identifier"]').val('');
                         modal.find('[name="relatedProject_uri"]').val('');
 
@@ -1934,8 +1970,8 @@ $('#genericModal').on('show.bs.modal', function (event) {
                         }
                     },
                     select: function(event, ui) {
-                        modal.find('[name="relatedProject_scheme"]').val(ui.item.projects[0].oc4ids);
-                        modal.find('[name="relatedProject_identifier"]').val(ui.item.projects[0].identifier);
+                        modal.find('[name="relatedProject_identifier"]').val(ui.item.projects[0].title);
+                        modal.find('[name="relatedProject_title"]').val(ui.item.projects[0].oc4idsIdentifier);
                         modal.find('[name="relatedProject_uri"]').val(ui.item.uri);
                         return false;
                     }
@@ -2128,14 +2164,14 @@ $('#genericModal').on('show.bs.modal', function (event) {
                     locale: 'es',
                     format: 'YYYY-MM-DD'
                 }).on("dp.change", function (e) {
-                    modal.find('#newguarantee_date2').data("DateTimePicker").minDate(e.date);
+                    // modal.find('#newguarantee_date2').data("DateTimePicker").minDate(e.date);
                 });
 
                 modal.find('#newguarantee_date2').datetimepicker({
                     locale: 'es',
                     format: 'YYYY-MM-DD'
                 }).on("dp.change", function (e) {
-                    modal.find('#newguarantee_date1').data("DateTimePicker").maxDate(e.date);
+                    // modal.find('#newguarantee_date1').data("DateTimePicker").maxDate(e.date);
                 });
 
                 modal.find('#editguarantee_form').submit(function (event) {
@@ -2919,6 +2955,22 @@ $('#genericModal').on('show.bs.modal', function (event) {
                 });
             });
             break;
+
+        //Buscar proyectos
+        case "search_projects":
+            modal.find('.modal-title').text('Buscar proyecto');
+            modal.find('#modal_content').html("");
+            modal.find('#modal_content').load('/search_projects',{user_id : button.data('user_id')}, function () {
+                $('#searchprojectsbyoc4ids_form').submit(function (event) {
+                    $('#searchprojects_result').load('/search-projects-by-ocid/', $(this).serializeArray());                
+                    $('#oc4idsIdentifier').val('');
+                    $('#identifier').val('');
+                    $('#title').val('');
+                    event.preventDefault();
+                });
+            });
+            break;
+
         case "delete_contratacion":
             modal.find('.modal-title').text('Eliminar contratación');
             modal.find('#modal_content').html("");

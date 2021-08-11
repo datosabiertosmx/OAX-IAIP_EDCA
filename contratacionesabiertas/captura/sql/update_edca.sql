@@ -26,6 +26,7 @@
 -- Actualizacion de documentos utilizados para el envío a PNT
 update DocumentType set title_esp = 'Convocatoria o invitación' where code = 'tenderNotice';
 update documenttype set title_esp = 'Estudios de impacto urbano y ambiental' where code = 'environmentalImpact';
+update public.documenttype set stage = '0' where code = 'contractText';
 
 INSERT INTO DocumentType(id, stage, code, category, title, title_esp, description, source) VALUES
 (47, 2,'openingOfProposals','basic','Opening Of Proposals','Documento en donde consta la presentación de las propuestas','Documento en donde consta la presentación de las propuestas',''),
@@ -85,8 +86,8 @@ ALTER TABLE ONLY public.datapnt
     ADD CONSTRAINT datapnt_contractingprocess_id_fkey FOREIGN KEY (contractingprocess_id) REFERENCES public.contractingprocess(id) ON DELETE CASCADE;
 
 -- scripts para ejecutar en ambos esquemas
-alter table budgetbreakdown add column origin varchar;
-alter table budgetbreakdown add column fund_type varchar;
+alter table public.budgetbreakdown add column origin varchar;
+alter table public.budgetbreakdown add column fund_type varchar;
 
 alter table dashboard.budgetbreakdown add column fund_type varchar;
 alter table dashboard.budgetbreakdown add column origin varchar;
@@ -115,7 +116,6 @@ update tender set procurementmethod_rationale_id = 'Artículo 41 fracción VIII 
 update tender set procurementmethod_rationale_id = 'Artículo 41 fracción X RAAS AD' where procurementmethod_rationale_id = 'Artículo 41 X RAAS AD';
 update tender set procurementmethod_rationale_id = 'Artículo 41 fracción XI RAAS AD' where procurementmethod_rationale_id = 'Artículo 41 XI RAAS AD';
 update tender set procurementmethod_rationale_id = 'Artículo 41 fracción XII RAAS AD' where procurementmethod_rationale_id = 'Artículo 41 XII RAAS AD';
-
 
 -- Ejecutar para actualizar roles con datos en el esquema dashboard
 truncate table roles restart identity;

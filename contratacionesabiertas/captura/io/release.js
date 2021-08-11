@@ -279,7 +279,7 @@ function release(db) {
                 matronymicName: p.additionalsurname
             }),
             address: clean({
-                streetAddress: p.address_streetaddress,
+                streetAddress: p.address_streetaddress + ' ' + p.address_outdoornumber,
                 locality: p.address_locality,
                 region: p.address_region,
                 postalCode: p.address_postalcode,
@@ -314,7 +314,7 @@ function release(db) {
 
         return clean({
             rationale: planning.rationale,
-            hasquotes: planning.hasquotes,
+            hasQuotes: planning.hasquotes,
             requestingUnits: planningUnits.requestingUnits,
             contractingUnits: planningUnits.contractingUnits,
             responsibleUnits: planningUnits.responsibleUnits,

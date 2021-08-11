@@ -401,6 +401,7 @@ module.exports = {
                 if (checkValue(data[0].budget.budget_uri)){release.planning.budget.uri = data[0].budget.budget_uri;}
 
                 if (checkValue(data[0].planning.rationale)){release.planning.rationale = data[0].planning.rationale;}
+                if (checkValue(data[0].planning.hasquotes)){release.planning.hasquotes = data[0].planning.hasquotes;}
 
                 //planning documents
                 if (data[4].length > 0){
